@@ -88,7 +88,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                 }
                 startNewRecording(); // start new recording
 
-            }, 4000);
+            }, 7000);
 
         }
         catch(err){
