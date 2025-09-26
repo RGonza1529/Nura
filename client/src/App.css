@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+
+*{
+      @apply box-border overscroll-none;
+  }
+  
+body{
+    @apply m-0 h-[100dvh] max-h-[100dvh];
+}
+
+/* Hide scrollbar for all browsers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}

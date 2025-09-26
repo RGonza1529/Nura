@@ -1,0 +1,31 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* color-scheme: light dark; */
+  color: #FFF;
+  background-color: #0a0a0a;
+  /* background-color: #1c1c21; */
+  /* secondary #487ed1 */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html{
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+}
+
+a{
+  color: #d4d4d4;
+  cursor: pointer;
+}
+
+button{
+  cursor: pointer;
+}
