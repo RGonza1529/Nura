@@ -19,7 +19,6 @@ async function TranscriptionService(socket, audioData){
             response_format: "text",
             chunking_strategy: "auto",
             temperature: '0.2',
-            // prompt: "You are transcribing an English audio file of a Christian sermon"
         });
 
         // const transcription = "hello"

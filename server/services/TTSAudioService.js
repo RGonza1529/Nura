@@ -12,7 +12,6 @@ async function TTSAudioService(socket, text){
             model: "gpt-4o-mini-tts",
             voice: "onyx",
             input: text,
-            // instructions: "Speak in a cheerful and positive tone.",
             response_format: "wav"
         });
 
