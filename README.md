@@ -35,7 +35,7 @@ To set up the project locally, follow these steps:
    OPENAI_API_KEY=your_api_key_here
    ```
 
-   3. **Establish the WebSocket Connection**
+3. **Establish the WebSocket Connection**
 
    To enable real-time communication between the client and server, you’ll need to establish a WebSocket connection:
 
