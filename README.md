@@ -60,7 +60,7 @@ To set up the project locally, follow these steps:
    Once dependencies are installed, the `.env` file is configured, and the Websocket connection is establed you’re ready to test the project locally.
 
 
-## 🧩 Commands
+## Commands
 
 ### Development Environment
 
@@ -126,7 +126,7 @@ The server emits results back to the client through specific emit endpoints:
 * **`translation:result`**
   Emits the **translation result**, which includes both the translated text and a **Text-to-Speech (TTS)** audio file of that translation.
 
-### 🧠 Business Logic and Services
+### Business Logic and Services
 
 All core business logic and OpenAI API interactions are handled within the `/services` directory.
 This folder contains the modules responsible for making API calls, managing transcription and translation processes, and returning results to the WebSocket layer.
