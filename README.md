@@ -35,11 +35,7 @@ To set up the project locally, follow these steps:
    OPENAI_API_KEY=your_api_key_here
    ```
 
-3. **Run the Project Locally**
-
-   Once dependencies are installed, the Websocket connection is establed, and the `.env` file is configured, you’re ready to test the project locally.
-
-4. **Establish the WebSocket Connection**
+   3. **Establish the WebSocket Connection**
 
    To enable real-time communication between the client and server, you’ll need to establish a WebSocket connection:
 
@@ -55,10 +51,13 @@ To set up the project locally, follow these steps:
      If you’re running everything locally with the default settings, the WebSocket connection should look like this:
 
      ```javascript
-     const socket = io("", {withCredentials: true, transports: ["websocket"],});
+     const socket = io("SERVER_ADDRESS", {withCredentials: true, transports: ["websocket"],});
      ```
 
-   Once this is configured, the client should successfully connect to the server via WebSocket.
+
+4. **Run the Project Locally**
+
+   Once dependencies are installed, the `.env` file is configured, and the Websocket connection is establed you’re ready to test the project locally.
 
 
 ## 🧩 Commands
