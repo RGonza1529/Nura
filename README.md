@@ -122,13 +122,13 @@ The WebSocket server exposes several key endpoints that handle different parts o
   This is the first endpoint directly tied to the core functionality of the app. It is triggered when the client sends an **audio chunk** to the server. This is also where the main algorithm is implemented.
   The server expects this audio chunk as input, then calls an internal function to start the **transcription and translation process**. Once the transcription is complete, the server moves on to emit the results back to the client through the corresponding emit endpoints.
 
-  * **`language:data`**
+* **`language:data`**
   Broadcasts host language settings to all end users.
 
-  * **`start-listening`**
+* **`start-listening`**
   Triggered when an end user selects a language to "listen" to. The primary function of this endpoint is to help keep track of which languages are actively being used.
 
-  * **`stop-listening`**
+* **`stop-listening`**
   Triggered when an end user switches languages.
 
 
