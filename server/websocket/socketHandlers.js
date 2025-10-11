@@ -11,6 +11,10 @@ const activeConnections = new Map();
  * @param {Server} io - Socket.IO server instance
  */
 function setupSocketHandlers(io) {
+
+  // keep track of active listeners/languages
+  const activeListeners = {};
+
   io.on('connection', (socket) => {
     logger.info(`Client connected: ${socket.id}`);
     
@@ -18,11 +22,6 @@ function setupSocketHandlers(io) {
     activeConnections.set(socket.id, {
       connectedAt: new Date(),
       lastActivity: new Date()
-    });
-
-    // 
-    socket.on('transcribe:audio', (data) => {
-      handleTranscribeAudio(socket, data);
     });
 
     // General events
@@ -41,6 +40,72 @@ function setupSocketHandlers(io) {
     socket.on('error', (error) => {
       logger.error(`Socket error for ${socket.id}:`, error);
     });
+
+    // Handle broadcasting language settings
+    socket.on('language:data', ({ speakerLanguage, selectedLanguages }) => {
+      socket.speakerLanguage = speakerLanguage;
+      socket.selectedLanguages = selectedLanguages;
+
+      socket.broadcast.emit('available-translations', {
+        speakerLanguage,
+        selectedLanguages
+      });
+    })
+
+    // Handle transcribing speaker's audio
+    socket.on('transcribe:audio', async (data) => {
+      let transcriptionResult = await handleTranscribeAudio(socket, data);
+
+      // filter out lanuages that aren't 
+      // being "listened" to by the users
+      const activeLangs = [];
+      for (const lang of socket.selectedLanguages) {
+        if (activeListeners[lang.label]?.size > 0) {
+          activeLangs.push(lang.label);
+        }
+      }
+
+      if (activeLangs.length === 0) {
+        // console.log("No active listeners, skipping translations.");
+        return;
+      }
+
+      await Promise.all(
+        activeLangs.map(async (lang) => {
+          handleTranslationRequest(socket, transcriptionResult, lang);
+      }));
+
+    });
+
+    socket.on("start-listening", (lang) => {
+      if (!activeListeners[lang]){
+        activeListeners[lang] = new Set();
+      }
+      activeListeners[lang].add(socket.id);
+
+      // console.log(`${socket.id} started listening to ${lang}`);
+    });
+
+    socket.on("stop-listening", (lang) => {
+      if (activeListeners[lang]) {
+        activeListeners[lang].delete(socket.id);
+        if (activeListeners[lang].size === 0){
+          delete activeListeners[lang];
+        }
+      }
+      // console.log(`${socket.id} stopped listening to ${lang}`);
+    });
+
+    socket.on("disconnect", () => {
+      // Clean up this socket from all language sets
+      for (const lang in activeListeners) {
+        activeListeners[lang].delete(socket.id);
+        if (activeListeners[lang].size === 0){
+          delete activeListeners[lang];
+        }
+      }
+    });
+
   });
 
   // Broadcast server stats periodically
@@ -93,14 +158,13 @@ async function handleTranscribeAudio(socket, audioData) {
     // conditional statement to prevent prompt leak
     if (transcriptionResult != null){
 
-      // translate the transcribed text
-      handleTranslationRequest(socket, transcriptionResult);
-
-      // Emit transcription results
+      // Emit transcription results for the host
       socket.emit('transcription:result', {
         text: transcriptionResult,
         timestamp: new Date().toISOString()
       });
+
+      return transcriptionResult;
     }
 
   } catch (error) {
@@ -113,23 +177,23 @@ async function handleTranscribeAudio(socket, audioData) {
 }
 
 // Handle translation requests
-async function handleTranslationRequest(socket, data) {
+async function handleTranslationRequest(socket, text, language) {
   try {
     updateLastActivity(socket.id);
     
     // Validate request data
-    if (!data) {
+    if (!text || !language) {
       socket.emit('translation:error', { 
         message: 'Missing required text' 
       });
       return;
     }
 
-    const translatedText = await TranslationService(socket, data);
-    const audioFile = await TTSAudioService(socket, translatedText);
-    
+    const translatedText = await TranslationService(socket, text, language);
+    const audioFile = await TTSAudioService(socket, translatedText, language);
+
     // emit results
-    socket.broadcast.emit('translation:result', {
+    socket.broadcast.emit(`translation-results:${language}`, {
       text: translatedText,
       audio: audioFile,
       timestamp: new Date().toISOString()

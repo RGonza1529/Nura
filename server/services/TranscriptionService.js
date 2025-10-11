@@ -15,7 +15,7 @@ async function TranscriptionService(socket, audioData){
         const transcription = await openai.audio.transcriptions.create({
             file: audioFile,
             model: "gpt-4o-transcribe",
-            language: "en",
+            language: socket.speakerLanguage,
             response_format: "text",
             chunking_strategy: "auto",
             temperature: '0.2',

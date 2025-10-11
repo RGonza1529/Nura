@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import socket from '../../Websocket/socket';
+import socket from '../../Websocket/socket'
 
 // COMPONENTS
 import Captions from '../../Components/Home/Captions';
+import SelectSpeakerLanguage from './SelectSpeakerLanguage';
+import SelectTranslation from './SelectTranslation';
 
 // ASSETS
 import start from '../../assets/icons/Play.svg';
@@ -24,6 +26,10 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
     const [audioPermission, setAudioPermission] = useState(false);
     const [devices, setDevices] = useState([]);
     const [selectedDeviceId, setSelectedDeviceId] = useState("");
+
+    // form input variables
+    const [speakerLanguage, setSpeakerLanguage] = useState("none");
+    const [selectedLanguages, setSelectedLanguages] = useState([]);
 
     useEffect(() => {
         getAudioPermission();
@@ -65,15 +71,31 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
 
     // transcription works for the most part, 
     // but misses words every so often.
-    const startRecording = () => {
+    const startRecording = async () => {
 
-        if (!socket.connected){
+        // input validation
+        if (speakerLanguage === "none" || selectedLanguages.length === 0){
+            console.log("incomplete form")
             return;
         }
 
+        console.log("speakerLanguage: ", speakerLanguage);
+        return;
+
         try{
 
+            const languageData = {
+                speakerLanguage: speakerLanguage,
+                selectedLanguages: selectedLanguages
+            }
+
+            console.log(languageData);
+
+            socket.emit('language:data', languageData);
+
             console.log("recording started");
+
+            // return;
             
             // immediately start the first recording
             startNewRecording();
@@ -92,7 +114,9 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
 
         }
         catch(err){
-            console.error(err)
+            console.error(err);
+            socket.disconnect();
+            console.log("socket connection closed");
         }
     }
 
@@ -177,7 +201,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                 </div>
 
                 {((showSettings || windowWidth >= 1024) && audioPermission) &&
-                    <div className="mb-5 flex flex-col gap-3">
+                    <form className="mb-5 flex flex-col gap-3">
 
                         <div className="mb-3">
                             <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">Caption controls</h2>
@@ -200,21 +224,11 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                             </select>
                         </div>
 
-                        <div className="">
-                            <label className="font-semibold mb-4 text-zinc-400">Speaker language</label>
-                            <div className="w-full bg-neutral-800 p-2 border border-zinc-400 rounded-md">
-                                <p>English (U.S.)</p>
-                            </div>
-                        </div>
+                        <SelectSpeakerLanguage speakerLanguage={speakerLanguage} setSpeakerLanguage={setSpeakerLanguage}/>
 
-                        <div className="">
-                            <label className="font-semibold mb-4 text-zinc-400">Translation</label>
-                            <div className="w-full bg-neutral-800 p-2 border border-zinc-400 rounded-md">
-                                <p>Español</p>
-                            </div>
-                        </div>
+                        <SelectTranslation selectedLanguages={selectedLanguages} setSelectedLanguages={setSelectedLanguages} />
 
-                    </div>
+                    </form>
                 }
             </div>
 

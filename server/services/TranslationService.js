@@ -5,11 +5,11 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function TranslationService(socket, text){
+async function TranslationService(socket, text, language){
     try{
         const response = await openai.responses.create({
             model: "gpt-4o-mini",
-            instructions: "You are a helpful assistant. your job is simply--to take this English text from a Christian sermon and translate into Spanish. respond with the translation only",
+            instructions: `You are a helpful assistant. your job is simple--to take this ${socket.speakerLanguage} text from a Christian sermon and translate into ${language}. respond with the translation only`,
             input: text,
         });
         

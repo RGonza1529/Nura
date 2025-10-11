@@ -8,10 +8,16 @@ The primary function of this app is to make live speaking events more accessible
 
 ## Supported Languages
 
-I developed this app specifically to transcribe English speech and translate it to Spanish, but this app supports the following languages:
+This app supports the following languages:
 
 Afrikaans, Arabic, Armenian, Azerbaijani, Belarusian, Bosnian, Bulgarian, Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Estonian, Finnish, French, Galician, German, Greek, Hebrew, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Kannada, Kazakh, Korean, Latvian, Lithuanian, Macedonian, Malay, Marathi, Maori, Nepali, Norwegian, Persian, Polish, Portuguese, Romanian, Russian, Serbian, Slovak, Slovenian, Spanish, Swahili, Swedish, Tagalog, Tamil, Thai, Turkish, Ukrainian, Urdu, Vietnamese, and Welsh.
 
+## Prerequisites
+
+This project assumes you have knowledge with React, Node.js, npm, and Web Sockets. 
+
+* **Node.js** 18+
+* **npm** 9+
 
 ## Getting Started
 
@@ -113,8 +119,18 @@ The WebSocket server exposes several key endpoints that handle different parts o
   Captures and logs any WebSocket-related errors that occur during communication.
 
 * **`transcribe:audio`**
-  This is the first endpoint directly tied to the core functionality of the app. It is triggered when the client sends an **audio chunk** to the server.
+  This is the first endpoint directly tied to the core functionality of the app. It is triggered when the client sends an **audio chunk** to the server. This is also where the main algorithm is implemented.
   The server expects this audio chunk as input, then calls an internal function to start the **transcription and translation process**. Once the transcription is complete, the server moves on to emit the results back to the client through the corresponding emit endpoints.
+
+  * **`language:data`**
+  Broadcasts host language settings to all end users.
+
+  * **`start-listening`**
+  Triggered when an end user selects a language to "listen" to. The primary function of this endpoint is to help keep track of which languages are actively being used.
+
+  * **`stop-listening`**
+  Triggered when an end user switches languages.
+
 
 ### Emit Endpoints
 
@@ -125,6 +141,9 @@ The server emits results back to the client through specific emit endpoints:
 
 * **`translation:result`**
   Emits the **translation result**, which includes both the translated text and a **Text-to-Speech (TTS)** audio file of that translation.
+
+* **`available-translations`**
+Emits selected language data for the end user.
 
 ### Business Logic and Services
 

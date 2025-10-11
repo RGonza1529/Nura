@@ -1,14 +1,20 @@
 import { useRef, useEffect, useState } from 'react';
 import socket from '../Websocket/socket';
 
+// COMPONENTS
+import LanguageSelect from '../Components/Listener/LanguageSelect';
+
 // ASSETS
 import headphones from '../assets/icons/Headphones.svg';
-import flag from '../assets/Images/flag2.png';
 
 export default function Listener(){
+
     const [toggleListen, setToggleListen] = useState(false);
     const [liveCaptions, setLiveCaptions] = useState([]);
     const activeRef = useRef(null);
+
+    const [selectedTranslation, setSelectedTranslation] = useState({ label: "None", value: "NN" });
+    const [availableTranslations, setAvailableTranslations] = useState([{ label: "None", value: "NN" }]);
 
     // variables for text-to-speech queue system
     const queue = useRef([]);
@@ -18,7 +24,8 @@ export default function Listener(){
     // basically, a function that listens for 
     // updates from the backend
     useEffect(() => {
-        socket.on("translation:result", (data) => {
+
+        socket.on(`translation-results:${selectedTranslation.label}`, (data) => {
             // process audio and push data into queue
             const audioBlob = new Blob([data.audio], { type: "audio/wav" });
             queue.current.push({text: data.text, audio: audioBlob});
@@ -36,14 +43,26 @@ export default function Listener(){
             }
         });
 
+        socket.on('available-translations', (data) => {
+            setAvailableTranslations([{ label: "None", value: "NN" }, ...data.selectedLanguages]);
+            setSelectedTranslation({ label: "None", value: "NN" })
+            // console.log(data.selectedLanguages);
+            // console.log(availableTranslations);
+        })
+
         return () => {
-            socket.off('translation:result');
+            socket.off(`translation-results:${selectedTranslation.label}`);
+            socket.off('available-translations')
         };
-    }, [socket, toggleListen]);
+    }, [socket, toggleListen, selectedTranslation]);
 
     // updates the UI when new captions arrive
     // also handles playing TTS
     useEffect(() => {
+
+        if (selectedTranslation.label === 'None'){
+            return;
+        }
 
         // keeps the active index of liveCaptions on the screen
         if (activeRef.current) {
@@ -72,6 +91,15 @@ export default function Listener(){
             };
         }
     }, [liveCaptions, toggleListen]);
+
+    useEffect(() => {
+        // Clean up on disconnect or page leave
+        return () => {
+            if (selectedTranslation.label !== 'None'){
+                socket.emit("stop-listening", selectedTranslation.label);
+            }
+        };
+    }, [selectedTranslation]);
 
     // helper function to add queued caption
     const addCaption = () => {
@@ -159,15 +187,22 @@ export default function Listener(){
                         <p>Listen</p>
                     </div>
 
-                    <div className="text-center text-sm">
+                    {/* <div className="text-center text-sm">
                         <button 
-                            className=""
+                            className="p-[10px] rounded-full bg-zinc-800 text-xl font-medium"
                             onClick={null}
                         >
-                            <img src={flag} alt="" className="w-[50px] h-[50px]"/>
+                            <p>EN</p>
                         </button>
                         <p className="">Language</p>
-                    </div>
+                    </div> */}
+
+                    <LanguageSelect
+                        socket={socket}
+                        selectedTranslation={selectedTranslation}
+                        setSelectedTranslation={setSelectedTranslation}
+                        availableTranslations={availableTranslations}
+                    />
 
                 </div>
             </div>
