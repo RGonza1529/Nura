@@ -80,7 +80,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
         }
 
         console.log("speakerLanguage: ", speakerLanguage);
-        return;
+        // return;
 
         try{
 
