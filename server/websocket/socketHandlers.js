@@ -14,9 +14,16 @@ function setupSocketHandlers(io) {
 
   // keep track of active listeners/languages
   const activeListeners = {};
+  let translations = [];
 
   io.on('connection', (socket) => {
     logger.info(`Client connected: ${socket.id}`);
+
+    if (translations.length > 0){
+      socket.emit('available-translations', {
+        translations
+      });
+    }
     
     // Store connection info
     activeConnections.set(socket.id, {
@@ -44,13 +51,12 @@ function setupSocketHandlers(io) {
     // Handle broadcasting language settings
     socket.on('language:data', ({ speakerLanguage, selectedLanguages }) => {
       socket.speakerLanguage = speakerLanguage;
-      socket.selectedLanguages = selectedLanguages;
+      translations = selectedLanguages;
 
       socket.broadcast.emit('available-translations', {
-        speakerLanguage,
-        selectedLanguages
+        translations
       });
-    })
+    });
 
     // Handle transcribing speaker's audio
     socket.on('transcribe:audio', async (data) => {
@@ -59,7 +65,7 @@ function setupSocketHandlers(io) {
       // filter out lanuages that aren't 
       // being "listened" to by the users
       const activeLangs = [];
-      for (const lang of socket.selectedLanguages) {
+      for (const lang of translations) {
         if (activeListeners[lang.label]?.size > 0) {
           activeLangs.push(lang.label);
         }

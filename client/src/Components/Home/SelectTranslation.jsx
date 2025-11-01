@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const languages = [
   { label: "Afrikaans", value: "af" },
@@ -60,9 +60,8 @@ const languages = [
   { label: "Welsh", value: "cy" },
 ];
 
-export default function SelectTranslation({ selectedLanguages, setSelectedLanguages}) {
+export default function SelectTranslation({ selectedLanguages, setSelectedLanguages, invalidForm }) {
   const [input, setInput] = useState("");
-//   const [selected, setSelected] = useState([]); // [{ label, value }]
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const filteredLanguages = languages.filter(
@@ -82,12 +81,12 @@ export default function SelectTranslation({ selectedLanguages, setSelectedLangua
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full pb-6 relative">
       <label className="font-semibold mb-0 text-zinc-400 block">
         Translation
       </label>
 
-      <div className="flex flex-wrap items-center gap-2 bg-neutral-800 border border-zinc-400 rounded-md p-2 min-h-[42px]">
+      <div className={`flex flex-wrap items-center gap-2 bg-neutral-800 rounded-md p-2 min-h-[42px] ${(invalidForm && selectedLanguages.length === 0) ? 'outline outline-red-500' : 'outline outline-zinc-400'}`}>
         {selectedLanguages.map((lang) => (
           <div
             key={lang.value}
@@ -133,8 +132,7 @@ export default function SelectTranslation({ selectedLanguages, setSelectedLangua
         </div>
       </div>
 
-      {/* For debugging or API submission */}
-      {/* <pre className="text-xs text-zinc-400 mt-2">{JSON.stringify(selected, null, 2)}</pre> */}
+      {(invalidForm && selectedLanguages.length === 0) && <span className="absolute bottom-0 left-0 text-red-500">Select 1 or more translations</span>}
     </div>
   );
 }

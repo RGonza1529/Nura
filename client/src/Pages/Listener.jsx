@@ -44,10 +44,8 @@ export default function Listener(){
         });
 
         socket.on('available-translations', (data) => {
-            setAvailableTranslations([{ label: "None", value: "NN" }, ...data.selectedLanguages]);
+            setAvailableTranslations([{ label: "None", value: "NN" }, ...data.translations]);
             setSelectedTranslation({ label: "None", value: "NN" })
-            // console.log(data.selectedLanguages);
-            // console.log(availableTranslations);
         })
 
         return () => {

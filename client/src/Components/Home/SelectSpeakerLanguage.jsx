@@ -1,17 +1,17 @@
 
-export default function SelectSpeakerLanguage({ speakerLanguage, setSpeakerLanguage }){
+export default function SelectSpeakerLanguage({speakerLanguage, setSpeakerLanguage, invalidForm}){
 
     const handleOnChange = (e) => {
         setSpeakerLanguage(e.target.value);
     }
 
     return(
-        <div className="">
+        <div className="relative pb-6">
             <label className="font-semibold mb-0 text-zinc-400 block">
                 Speaker language
             </label>
 
-            <div className="w-full bg-neutral-800 p-2 border border-zinc-400 rounded-md">
+            <div className={`w-full bg-neutral-800 p-2 rounded-md ${(invalidForm && speakerLanguage === "none") ? 'outline outline-red-500' : 'outline outline-zinc-400'}`}>
                 <select
                 className="w-full bg-neutral-800 text-white outline-none border-none rounded-md cursor-pointer"
                 defaultValue="none"
@@ -78,6 +78,8 @@ export default function SelectSpeakerLanguage({ speakerLanguage, setSpeakerLangu
                 <option value="cy">Welsh</option>
                 </select>
             </div>
+
+            {(invalidForm && speakerLanguage === "none") && <span className="absolute bottom-0 left-0 text-red-500">Select a language</span>}
         </div>
     )
 }

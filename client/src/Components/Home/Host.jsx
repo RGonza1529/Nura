@@ -30,6 +30,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
     // form input variables
     const [speakerLanguage, setSpeakerLanguage] = useState("none");
     const [selectedLanguages, setSelectedLanguages] = useState([]);
+    const [invalidForm, setInvalidForm] = useState(false);
 
     useEffect(() => {
         getAudioPermission();
@@ -73,13 +74,21 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
     // but misses words every so often.
     const startRecording = async () => {
 
-        // input validation
-        if (speakerLanguage === "none" || selectedLanguages.length === 0){
-            console.log("incomplete form")
+        if (!socket?.connected){
+            alert("Failed to connect to Websocket");
             return;
         }
 
-        console.log("speakerLanguage: ", speakerLanguage);
+        // input validation
+        if (speakerLanguage === "none" || selectedLanguages.length === 0){
+            console.log("incomplete form")
+            setInvalidForm(true);
+            return;
+        }
+
+        setInvalidForm(false);
+
+        // console.log("speakerLanguage: ", speakerLanguage);
         // return;
 
         try{
@@ -89,7 +98,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                 selectedLanguages: selectedLanguages
             }
 
-            console.log(languageData);
+            // console.log(languageData);
 
             socket.emit('language:data', languageData);
 
@@ -201,7 +210,7 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                 </div>
 
                 {((showSettings || windowWidth >= 1024) && audioPermission) &&
-                    <form className="mb-5 flex flex-col gap-3">
+                    <form className=" flex flex-col">
 
                         <div className="mb-3">
                             <h2 className="text-lg sm:text-xl md:text-2xl font-semibold">Caption controls</h2>
@@ -209,10 +218,10 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                         </div>
 
                         {/* input device stuff */}
-                        <div className="">
+                        <div className="mb-3">
                             <label className="font-semibold mb-4 text-zinc-400">Input device</label>
                             <select
-                                className="w-full bg-neutral-800 p-2 border border-zinc-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer"
+                                className="w-full bg-neutral-800 p-2 outline outline-zinc-400 rounded-md focus:outline-2 focus:outline-indigo-400 cursor-pointer"
                                 value={selectedDeviceId}
                                 onChange={(e) => setSelectedDeviceId(e.target.value)}
                             >
@@ -224,9 +233,9 @@ export default function Host({ captionsBarOpen, toggleCaptions, windowWidth }){
                             </select>
                         </div>
 
-                        <SelectSpeakerLanguage speakerLanguage={speakerLanguage} setSpeakerLanguage={setSpeakerLanguage}/>
+                        <SelectSpeakerLanguage speakerLanguage={speakerLanguage} setSpeakerLanguage={setSpeakerLanguage} invalidForm={invalidForm}/>
 
-                        <SelectTranslation selectedLanguages={selectedLanguages} setSelectedLanguages={setSelectedLanguages} />
+                        <SelectTranslation selectedLanguages={selectedLanguages} setSelectedLanguages={setSelectedLanguages} invalidForm={invalidForm}/>
 
                     </form>
                 }
